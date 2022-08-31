@@ -3,6 +3,7 @@ from json import JSONDecodeError
 import requests
 import json
 
+host = "http://localhost:7000"
 
 def crearURL(token=None):
     res = input("\nIndique si desea acceder al api REST [s/n]: ")
@@ -19,7 +20,7 @@ def crearURL(token=None):
         url = input("\nIntroduzca el url: ");
         my_headers = {'Authorization': 'Bearer ' + token}
 
-        response = requests.post('http://localhost:7000/api/usuarios/' + username, params={'url': url},
+        response = requests.post(host + '/api/usuarios/' + username, params={'url': url},
                                  headers=my_headers)
 
         try:
@@ -47,7 +48,7 @@ def listarUrlUsuario(token=None):
         fecha = input("\nIntroduzca la fecha a consultar [yyyy-MM-dd]: ")
         my_headers = {'Authorization': 'Bearer ' + token}
 
-        response = requests.get('http://localhost:7000/api/usuarios/' + usuario + "/fecha/" + fecha, headers=my_headers)
+        response = requests.get(host + '/api/usuarios/' + usuario + "/fecha/" + fecha, headers=my_headers)
 
         try:
             print(response.json())
@@ -76,7 +77,7 @@ def loginRegistrar():
         user = {'usuario': usuario, 'password': password}
         to_json = json.dumps(user)
 
-        response = requests.post("http://localhost:7000/api/login", data=to_json)
+        response = requests.post(host + "/api/login", data=to_json)
 
         print("")
 
@@ -109,7 +110,7 @@ def loginListar():
         user = {'usuario': usuario, 'password': password}
         to_json = json.dumps(user)
 
-        response = requests.post("http://localhost:7000/api/login", data=to_json)
+        response = requests.post(host + "/api/login", data=to_json)
 
         print("")
 
