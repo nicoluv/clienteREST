@@ -1,9 +1,13 @@
+from json import JSONDecodeError
+
 import requests
 import json
 
+host = "http://localhost:7000"
 
 def crearURL(token=None):
     res = input("\nIndique si desea acceder al api REST [s/n]: ")
+    temp = token
 
     while res != "s" and res != "n":
         res = input("Indique si desea acceder al api REST [s/n]: ")
@@ -16,10 +20,16 @@ def crearURL(token=None):
         url = input("\nIntroduzca el url: ");
         my_headers = {'Authorization': 'Bearer ' + token}
 
-        response = requests.post('http://localhost:7000/api/usuarios/' + username, params={'url': url},
+        response = requests.post(host + '/api/usuarios/' + username, params={'url': url},
                                  headers=my_headers)
 
-        print(response.json())
+        try:
+            print(response.json())
+        except JSONDecodeError:
+            print("\nToken no existente. Intentelo de nuevo")
+            if temp is None:
+                token = None
+            return crearURL(token)
 
     elif res == "n":
         exit()
@@ -35,11 +45,17 @@ def listarUrlUsuario(token=None):
             token = input("\nIntroduzca su token: ")
 
         usuario = input("\nIntroduzca el nombre del usuario a buscar: ")
+        fecha = input("\nIntroduzca la fecha a consultar [yyyy-MM-dd]: ")
         my_headers = {'Authorization': 'Bearer ' + token}
 
-        response = requests.get('http://localhost:7000/api/usuarios/' + usuario, headers=my_headers)
+        response = requests.get(host + '/api/usuarios/' + usuario + "/fecha/" + fecha, headers=my_headers)
 
-        print(response.json())
+        try:
+            print(response.json())
+        except JSONDecodeError:
+            print("\nToken no existente. Intentelo de Nuevo")
+            token = None
+            return listarUrlUsuario(token)
 
     elif res == "n":
         exit()
@@ -61,12 +77,16 @@ def loginRegistrar():
         user = {'usuario': usuario, 'password': password}
         to_json = json.dumps(user)
 
-        response = requests.post("http://localhost:7000/api/login", data=to_json)
+        response = requests.post(host + "/api/login", data=to_json)
 
         print("")
-        print(response.json())
 
-        token = json.loads(json.dumps(response.json()))['token']
+        try:
+            print(response.json())
+            token = json.loads(json.dumps(response.json()))['token']
+        except JSONDecodeError:
+            print("\nUsuario o Contrasena incorrecta.  Intentelo de Nuevo")
+            return loginRegistrar()
 
         if json.dumps(response.json()).startswith('"Error') == False:
             crearURL(token)
@@ -90,12 +110,16 @@ def loginListar():
         user = {'usuario': usuario, 'password': password}
         to_json = json.dumps(user)
 
-        response = requests.post("http://localhost:7000/api/login", data=to_json)
+        response = requests.post(host + "/api/login", data=to_json)
 
         print("")
-        print(response.json())
 
-        token = json.loads(json.dumps(response.json()))['token']
+        try:
+            print(response.json())
+            token = json.loads(json.dumps(response.json()))['token']
+        except JSONDecodeError:
+            print("\nUsuario o Contrasena incorrecta. Intentelo de Nuevo")
+            return loginListar()
 
         if json.dumps(response.json()).startswith('"Error') == False:
             listarUrlUsuario(token)
